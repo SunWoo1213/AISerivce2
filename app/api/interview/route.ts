@@ -7,6 +7,10 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
+    // 디버깅: 환경 변수 확인
+    console.log('OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY)
+    console.log('OPENAI_API_KEY length:', process.env.OPENAI_API_KEY?.length || 0)
+    
     const { coverLetter, conversationHistory, isFirstQuestion } = await request.json()
 
     if (!coverLetter || coverLetter.trim().length === 0) {
