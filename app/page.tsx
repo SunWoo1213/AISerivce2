@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/lib/store';
@@ -56,10 +56,21 @@ export default function HomePage() {
     formState: { errors },
   } = useForm<FormData>();
 
+  // 검증 에러 감지
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.log('=== 폼 검증 에러 ===');
+      console.log('에러 내용:', errors);
+    }
+  }, [errors]);
+
   const onSubmit = async (data: FormData) => {
+    console.log('=== 폼 제출 시작 ===');
+    console.log('입력된 데이터:', data);
+    
     setIsSubmitting(true);
     try {
-      console.log('Submitting user data:', data);
+      console.log('API 요청 전송 중...');
       
       const response = await fetch('/api/users', {
         method: 'POST',
@@ -67,20 +78,28 @@ export default function HomePage() {
         body: JSON.stringify(data),
       });
 
+      console.log('API 응답 상태:', response.status);
+      
       const result = await response.json();
+      console.log('API 응답 데이터:', result);
 
       if (!response.ok) {
         throw new Error(result.error || '사용자 생성 실패');
       }
 
-      console.log('User created:', result.user);
+      console.log('사용자 생성 성공:', result.user);
       setUserId(result.user.id);
+      console.log('다음 페이지로 이동 중...');
       router.push('/submit-cover-letter');
     } catch (error: any) {
-      console.error('Error:', error);
-      alert(error.message || '오류가 발생했습니다. 다시 시도해주세요.');
+      console.error('=== 에러 발생 ===');
+      console.error('에러 상세:', error);
+      console.error('에러 메시지:', error.message);
+      console.error('에러 스택:', error.stack);
+      alert(`오류: ${error.message || '알 수 없는 오류가 발생했습니다.'}`);
     } finally {
       setIsSubmitting(false);
+      console.log('=== 폼 제출 종료 ===');
     }
   };
 
@@ -156,6 +175,7 @@ export default function HomePage() {
               isLoading={isSubmitting}
               className="w-full"
               size="lg"
+              onClick={() => console.log('버튼 클릭됨 - 폼 제출 시도')}
             >
               다음 단계로
             </Button>
