@@ -59,22 +59,26 @@ export default function HomePage() {
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
+      console.log('Submitting user data:', data);
+      
       const response = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error('사용자 생성 실패');
+        throw new Error(result.error || '사용자 생성 실패');
       }
 
-      const result = await response.json();
+      console.log('User created:', result.user);
       setUserId(result.user.id);
       router.push('/submit-cover-letter');
-    } catch (error) {
-      console.error(error);
-      alert('오류가 발생했습니다. 다시 시도해주세요.');
+    } catch (error: any) {
+      console.error('Error:', error);
+      alert(error.message || '오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
       setIsSubmitting(false);
     }

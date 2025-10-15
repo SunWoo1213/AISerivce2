@@ -6,6 +6,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, email, jobCategory, age, experience, gender } = body;
 
+    console.log('Received user data:', { name, email, jobCategory, age, experience, gender });
+
     // 필수 필드 검증
     if (!name || !jobCategory || !age || !experience || !gender) {
       return NextResponse.json(
@@ -14,23 +16,47 @@ export async function POST(request: Request) {
       );
     }
 
+    // 나이를 안전하게 숫자로 변환
+    const ageNumber = typeof age === 'string' ? parseInt(age, 10) : Number(age);
+    
+    if (isNaN(ageNumber) || ageNumber < 18 || ageNumber > 100) {
+      return NextResponse.json(
+        { error: '올바른 나이를 입력해주세요 (18-100).' },
+        { status: 400 }
+      );
+    }
+
+    // 이메일이 빈 문자열이면 undefined로 처리 (unique 제약 회피)
+    const emailValue = email && email.trim() !== '' ? email.trim() : undefined;
+
     // 사용자 생성
     const user = await prisma.user.create({
       data: {
-        name,
-        email,
+        name: name.trim(),
+        email: emailValue,
         jobCategory,
-        age: parseInt(age),
+        age: ageNumber,
         experience,
         gender,
       },
     });
 
+    console.log('User created successfully:', user.id);
     return NextResponse.json({ user }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating user:', error);
+    console.error('Error details:', error.message, error.code);
+    
+    // Prisma 에러 처리
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        { error: '이미 사용 중인 이메일입니다.' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { error: '사용자 생성 중 오류가 발생했습니다.' },
+      { error: '사용자 생성 중 오류가 발생했습니다.', details: error.message },
       { status: 500 }
     );
   }
