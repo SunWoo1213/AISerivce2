@@ -1,188 +1,171 @@
 # AI 자소서 피드백 & 모의 면접 서비스
 
-Next.js App Router 기반의 AI 자기소개서 피드백 및 모의 면접 웹 서비스입니다.
+Next.js, Prisma, Vercel Postgres, OpenAI GPT-4o를 활용한 AI 기반 자기소개서 피드백 및 맞춤형 모의 면접 웹 애플리케이션입니다.
 
 ## 주요 기능
 
-### 🎯 AI 자소서 피드백
-- 작성한 자기소개서를 AI가 분석하여 구체적인 피드백 제공
-- 강점 분석, 개선점, 구체적인 수정 방안 제시
-- 100점 만점 점수 제공
+### 1. 자기소개서 피드백
+- 사용자의 직군, 경력 정보를 기반으로 맞춤형 피드백 제공
+- AI가 자동으로 자소서를 분석하여 전문적인 피드백 생성
+- 구성, 직무 적합성, 구체성, 문장력 등 4가지 항목 평가
 
-### 🎤 AI 모의 면접
-- 자소서 기반 맞춤형 면접 질문 생성
-- 실시간 채팅 형식의 면접 진행
-- 답변에 대한 즉시 피드백과 다음 질문 제공
+### 2. AI 모의 면접
+- **기본 면접**: 인성, 협업, 문제 해결 능력을 평가하는 BEI(행동사건기반) 질문
+- **기술 면접**: 자소서의 기술 스택과 프로젝트를 심층 분석하는 기술 질문
+- 질문별 제한 시간 (기본: 60초, 기술: 180초)
+- 실시간 타이머와 답변 팁 제공
 
-### 🔄 연동 기능
-- 피드백 페이지에서 바로 모의 면접으로 이동 가능
-- 자소서 내용 자동 전달 및 연속성 보장
+### 3. 종합 피드백
+- 각 답변에 대한 개별 피드백
+- 전체 면접에 대한 종합 평가
+- PDF 저장 및 인쇄 기능
 
 ## 기술 스택
 
-- **Frontend**: Next.js 14 (App Router), React 18, TypeScript
-- **Styling**: Tailwind CSS
-- **AI Integration**: OpenAI GPT-3.5-turbo
-- **Deployment**: Vercel (권장)
+- **프레임워크**: Next.js 14 (App Router)
+- **데이터베이스**: Vercel Postgres
+- **ORM**: Prisma
+- **AI**: OpenAI API (GPT-4o)
+- **스타일링**: Tailwind CSS
+- **폼 관리**: React Hook Form
+- **상태 관리**: Zustand
 
-## 설치 및 실행
+## 시작하기
 
-### 1. 프로젝트 클론 및 의존성 설치
+### 1. 의존성 설치
 
-```bash
-git clone <repository-url>
-cd ai-cover-letter-service
+\`\`\`bash
 npm install
-```
+\`\`\`
 
 ### 2. 환경 변수 설정
 
-`.env.local` 파일을 생성하고 다음 내용을 추가하세요:
+\`.env\` 파일을 생성하고 다음 환경 변수를 설정하세요:
 
-```env
-# OpenAI API Key (필수)
-OPENAI_API_KEY=your_openai_api_key_here
+\`\`\`env
+# Vercel Postgres
+POSTGRES_URL=your_postgres_url
+POSTGRES_PRISMA_URL=your_postgres_prisma_url
+POSTGRES_URL_NON_POOLING=your_postgres_url_non_pooling
+POSTGRES_USER=your_postgres_user
+POSTGRES_HOST=your_postgres_host
+POSTGRES_PASSWORD=your_postgres_password
+POSTGRES_DATABASE=your_postgres_database
 
-# Next.js Configuration
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
+# OpenAI
+OPENAI_API_KEY=your_openai_api_key
+\`\`\`
 
-**OpenAI API 키 발급 방법:**
-1. [OpenAI 웹사이트](https://platform.openai.com/)에 가입
-2. API Keys 섹션에서 새 API 키 생성
-3. 생성된 키를 `.env.local` 파일에 추가
+### 3. 데이터베이스 설정
 
-### 3. 개발 서버 실행
+\`\`\`bash
+# Prisma 마이그레이션
+npx prisma migrate dev --name init
 
-```bash
+# Prisma Client 생성
+npx prisma generate
+\`\`\`
+
+### 4. 개발 서버 실행
+
+\`\`\`bash
 npm run dev
-```
+\`\`\`
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 확인하세요.
 
 ## 프로젝트 구조
 
-```
-├── app/                    # Next.js App Router
-│   ├── api/               # API 라우트
-│   │   ├── feedback/      # 자소서 피드백 API
-│   │   └── interview/     # 모의 면접 API
-│   ├── feedback/          # 피드백 페이지
-│   ├── interview/         # 모의 면접 페이지
-│   ├── globals.css        # 글로벌 스타일
-│   ├── layout.tsx         # 루트 레이아웃
-│   └── page.tsx           # 메인 페이지
-├── components/            # 재사용 가능한 컴포넌트
+\`\`\`
+├── app/                          # Next.js App Router
+│   ├── api/                      # API 라우트
+│   │   ├── users/                # 사용자 관리 API
+│   │   ├── cover-letters/        # 자소서 관리 API
+│   │   └── interview/            # 면접 관리 API
+│   ├── interview/                # 면접 페이지
+│   │   └── [sessionId]/
+│   │       ├── page.tsx          # 면접 진행 페이지
+│   │       └── result/
+│   │           └── page.tsx      # 면접 결과 페이지
+│   ├── my-page/                  # 마이페이지
+│   ├── submit-cover-letter/      # 자소서 제출 페이지
+│   ├── layout.tsx                # 루트 레이아웃
+│   ├── page.tsx                  # 홈페이지 (정보 입력)
+│   └── globals.css               # 전역 스타일
+├── components/                   # 재사용 가능한 컴포넌트
 │   ├── Button.tsx
 │   ├── Card.tsx
-│   ├── ChatMessage.tsx
-│   ├── LoadingSpinner.tsx
-│   └── TextArea.tsx
-├── public/               # 정적 파일
-├── package.json
-├── tailwind.config.js
-├── tsconfig.json
-└── README.md
-```
+│   ├── Input.tsx
+│   ├── Select.tsx
+│   ├── TextArea.tsx
+│   ├── Timer.tsx
+│   └── LoadingSpinner.tsx
+├── lib/                          # 유틸리티 함수
+│   ├── prisma.ts                 # Prisma 클라이언트
+│   ├── openai.ts                 # OpenAI 유틸리티
+│   ├── prompts.ts                # AI 프롬프트 템플릿
+│   └── store.ts                  # Zustand 스토어
+├── prisma/
+│   └── schema.prisma             # 데이터베이스 스키마
+└── ...
+\`\`\`
 
-## 주요 컴포넌트
+## 데이터베이스 스키마
 
-### Button
-재사용 가능한 버튼 컴포넌트 (primary, secondary, outline 스타일 지원)
+### User (사용자)
+- 이름, 이메일, 직군, 나이, 경력, 성별
 
-### TextArea
-텍스트 입력을 위한 textarea 컴포넌트
+### CoverLetter (자기소개서)
+- 내용, 상태 (PENDING/COMPLETED/ERROR), 피드백
 
-### ChatMessage
-채팅 메시지 표시를 위한 컴포넌트
+### InterviewSession (면접 세션)
+- 유형 (BASIC/TECHNICAL), 종합 피드백
 
-### LoadingSpinner
-로딩 상태 표시를 위한 스피너 컴포넌트
+### InterviewTurn (면접 턴)
+- 질문, 답변, 피드백, 제한 시간
 
-### Card
-콘텐츠를 감싸는 카드 컴포넌트
+## 사용 흐름
 
-## API 엔드포인트
+1. **기본 정보 입력** (`/`)
+   - 이름, 직군, 경력 등 입력
+   
+2. **자소서 제출** (`/submit-cover-letter`)
+   - 자기소개서 작성 또는 붙여넣기
+   - AI가 비동기로 피드백 생성
 
-### POST /api/feedback
-자기소개서 피드백을 요청합니다.
+3. **마이페이지** (`/my-page`)
+   - 제출한 자소서 목록 확인
+   - 피드백 확인
+   - 면접 시작 (기본/기술)
 
-**Request Body:**
-```json
-{
-  "coverLetter": "자기소개서 내용"
-}
-```
+4. **면접 진행** (`/interview/[sessionId]`)
+   - 타이머가 있는 질문 답변
+   - 최대 5개 질문
 
-**Response:**
-```json
-{
-  "feedback": "AI가 생성한 피드백 내용"
-}
-```
-
-### POST /api/interview
-모의 면접 질문을 요청합니다.
-
-**Request Body:**
-```json
-{
-  "coverLetter": "자기소개서 내용",
-  "conversationHistory": [
-    {
-      "role": "user|assistant",
-      "content": "메시지 내용"
-    }
-  ],
-  "isFirstQuestion": true|false
-}
-```
-
-**Response:**
-```json
-{
-  "response": "AI가 생성한 질문 또는 피드백"
-}
-```
+5. **결과 확인** (`/interview/[sessionId]/result`)
+   - 종합 피드백 및 개별 피드백
+   - PDF 저장 가능
 
 ## 배포
 
-### Vercel 배포 (권장)
+### Vercel 배포
 
-1. [Vercel](https://vercel.com)에 가입
-2. GitHub 저장소 연결
-3. 환경 변수 설정:
-   - `OPENAI_API_KEY`: OpenAI API 키
-   - `NEXT_PUBLIC_APP_URL`: 배포된 도메인 URL
-4. 배포 완료
+1. Vercel에 프로젝트 연결
+2. 환경 변수 설정
+3. Vercel Postgres 데이터베이스 생성
+4. 배포 후 Prisma 마이그레이션 실행:
 
-### 다른 플랫폼 배포
-
-```bash
-npm run build
-npm start
-```
-
-## 사용법
-
-1. **메인 페이지**: 두 개의 주요 기능 버튼 선택
-2. **피드백 페이지**: 자소서 입력 → 피드백 요청 → 결과 확인 → 모의 면접으로 이동
-3. **모의 면접 페이지**: 자소서 입력 → 면접 시작 → 질문에 답변 → 실시간 피드백
+\`\`\`bash
+npx prisma migrate deploy
+\`\`\`
 
 ## 주의사항
 
-- OpenAI API 사용량에 따라 비용이 발생할 수 있습니다
-- API 키는 절대 공개하지 마세요
-- 개발 환경에서는 `.env.local` 파일을 `.gitignore`에 추가하세요
+- OpenAI API 사용료가 발생할 수 있습니다
+- GPT-4o 모델을 사용하며, 응답 생성에 시간이 소요될 수 있습니다
+- 프로덕션 환경에서는 사용자 인증 및 보안 기능을 추가하는 것을 권장합니다
 
 ## 라이선스
 
 MIT License
 
-## 기여하기
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request

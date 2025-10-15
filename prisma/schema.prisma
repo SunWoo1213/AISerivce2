@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String?  @unique
+  jobCategory String   // 직군
+  age         Int      // 나이
+  experience  String   // 경력 (예: "신입", "3년차", "5년 이상")
+  gender      String   // 성별
+  createdAt   DateTime @default(now())
+
+  coverLetters     CoverLetter[]
+  interviewSessions InterviewSession[]
+}
+
+model CoverLetter {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  status    String   @default("PENDING") // PENDING -> COMPLETED
+  feedback  String?  @db.Text
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model InterviewSession {
+  id        String   @id @default(cuid())
+  type      String   // BASIC, TECHNICAL
+  feedback  String?  @db.Text // 종합 피드백
+  createdAt DateTime @default(now())
+  userId    String
+  coverLetterId String? // 자소서 기반 면접
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  turns InterviewTurn[]
+}
+
+model InterviewTurn {
+  id          String   @id @default(cuid())
+  question    String   @db.Text
+  answer      String?  @db.Text
+  feedback    String?  @db.Text
+  timeLimit   Int      // 질문별 제한 시간 (초 단위)
+  turnNumber  Int      // 질문 순서
+  createdAt   DateTime @default(now())
+  sessionId   String
+  session     InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@index([sessionId, turnNumber])
+}
+

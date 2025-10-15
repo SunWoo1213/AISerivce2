@@ -1,12 +1,12 @@
-import { TextareaHTMLAttributes, forwardRef } from 'react';
+import { InputHTMLAttributes, forwardRef } from 'react';
 
-interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
 }
 
-const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
+const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, helperText, className = '', ...props }, ref) => {
     return (
       <div className="w-full">
@@ -16,9 +16,9 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             {props.required && <span className="text-red-500 ml-1">*</span>}
           </label>
         )}
-        <textarea
+        <input
           ref={ref}
-          className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none ${
+          className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all ${
             error ? 'border-red-500' : 'border-gray-300'
           } ${className}`}
           {...props}
@@ -32,7 +32,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
   }
 );
 
-TextArea.displayName = 'TextArea';
+Input.displayName = 'Input';
 
-export default TextArea;
+export default Input;
 
